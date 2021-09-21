@@ -16,7 +16,7 @@ Including the fees, we get BNT rewards, which are converted into WBTC and then d
  1. Everytime a deposit is made, a new deposit id is added, so this results in high gas costs while calculating total balance of Pool,
 because we have to query each id individually to get the wbtc balance in each deposit. Similarly, while withdrawing we have
 to query each id until the required amount is withdrawn. In short, <strong>High Gas Costs</strong>.
-2. Due to Bancor's promise of protection from impermanent loss, sometimes while withdrawing WBTC from the pool, if sufficient WBTC liquidity is not available then Bancor Protocol ____ us with BNT tokens instead.
+2. Due to Bancor's promise of protection from impermanent loss, sometimes while withdrawing WBTC from the pool, if sufficient WBTC liquidity is not available then Bancor Protocol will makeup with BNT tokens instead.
 
 ## Expected Yield
 As of Sept 21, 2021
