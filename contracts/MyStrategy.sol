@@ -39,6 +39,8 @@ contract MyStrategy is BaseStrategy {
     address public constant LIQUIDITY_PROTECTION_STORE =
         0xf5FAB5DBD2f3bf675dE4cB76517d4767013cfB55;
 
+    uint256 public slippage_tolerance = 1000;  // in PPM, 10**6 = 100%
+
     // uint256 public wbtcPool;
 
     // Used to signal to the Badger Tree that rewards where sent to it
@@ -168,6 +170,10 @@ contract MyStrategy is BaseStrategy {
         // wbtcPool = wbtcPool.add(_amount);
     }
 
+    function testDeposit(uint256 _amount) public {
+        _deposit(_amount);
+    }
+
     /// @dev utility function to withdraw everything for migration
     function _withdrawAll() internal override {
         _withdrawSome(balanceOfPool());
@@ -233,11 +239,17 @@ contract MyStrategy is BaseStrategy {
         swapPath[1] = LP_COMPONENT; // 0xFEE7EeaA0c2f3F7C7e6301751a8dE55cE4D059Ec
         swapPath[2] = want; // 0x2260fac5e5542a773aa44fbcfedf7c193bc2c599 // wbtc
 
+
+        // to prevent front-running
+        uint256 _expectedRate = IBancorNetwork(BANCOR_NETWORK_ADDRESS).rateByPath(swapPath, rewards);
+
+        uint256 _minAmount = _expectedRate.mul(10**6 - slippage_tolerance).div(10**6);
+
         // convert BNT rewards to WBTC
         IBancorNetwork(BANCOR_NETWORK_ADDRESS).convertByPath(
             swapPath,
             rewards,
-            1, // TODO: calculate this first, to prevent front-running
+            _minAmount,
             address(0),
             address(0),
             0
@@ -294,5 +306,11 @@ contract MyStrategy is BaseStrategy {
             performanceFeeStrategist,
             strategist
         );
+    }
+
+    function setSlippageTolerance(uint256 _val) external {
+        _onlyAuthorizedActors();
+        require(_val <= 10**6);
+        slippage_tolerance = _val;
     }
 }

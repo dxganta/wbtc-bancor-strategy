@@ -12,4 +12,6 @@ interface IBancorNetwork {
         address affiliateAccount,
         uint256 affiliateFee
     ) external payable returns (uint256);
+
+    function rateByPath(address[] memory _path, uint256 _amount) external view returns (uint256);
 }
