@@ -185,6 +185,12 @@ contract MyStrategy is BaseStrategy {
         override
         returns (uint256)
     {
+        uint256 _pool = balanceOfPool();
+
+        if (_amount > _pool) {
+            _amount = _pool;
+        }
+
         uint256 toWithdraw = _amount;
         uint256[] memory _ids =
             ILiquidityProtectionStore(LIQUIDITY_PROTECTION_STORE)
