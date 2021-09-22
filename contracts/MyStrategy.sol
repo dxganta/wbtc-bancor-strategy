@@ -38,8 +38,10 @@ contract MyStrategy is BaseStrategy {
         0x2F9EC37d6CcFFf1caB21733BdaDEdE11c823cCB0;
     address public constant LIQUIDITY_PROTECTION_STORE =
         0xf5FAB5DBD2f3bf675dE4cB76517d4767013cfB55;
+    
+    uint32 public constant MAX_PPM = 10**6;
 
-    uint256 public slippage_tolerance = 1000;  // in PPM, 10**6 = 100%
+    uint32 public slippage_tolerance = 1000;  // in PPM, 10**6 = 100%
 
     // uint256 public wbtcPool;
 
@@ -208,7 +210,7 @@ contract MyStrategy is BaseStrategy {
                 if (toWithdraw <= claimable) {
                     // if toWithdraw amount is less than or equal to amount in id,  withdraw the toWithdraw amount and stop the loop.
                     uint32 _portion =
-                        uint32(toWithdraw.mul(10**6).div(claimable));
+                        uint32(toWithdraw.mul(MAX_PPM).div(claimable));
                     // return _portion;
                     ILiquidityProtection(LIQUIDITY_PROTECTION_ADDRESS)
                         .removeLiquidity(_ids[currentId], _portion);
@@ -216,7 +218,7 @@ contract MyStrategy is BaseStrategy {
                 } else {
                     // if toWithdraw amount is greater than amount in id, withdraw the 100% portion and then go to the next id to withdraw the remaining
                     ILiquidityProtection(LIQUIDITY_PROTECTION_ADDRESS)
-                        .removeLiquidity(_ids[currentId], 10**6);
+                        .removeLiquidity(_ids[currentId], MAX_PPM);
                     toWithdraw = toWithdraw.sub(claimable);
                 }
             }
@@ -249,7 +251,7 @@ contract MyStrategy is BaseStrategy {
         // to prevent front-running
         uint256 _expectedRate = IBancorNetwork(BANCOR_NETWORK_ADDRESS).rateByPath(swapPath, rewards);
 
-        uint256 _minAmount = _expectedRate.mul(10**6 - slippage_tolerance).div(10**6);
+        uint256 _minAmount = _expectedRate.mul(MAX_PPM - slippage_tolerance).div(MAX_PPM);
 
         // convert BNT rewards to WBTC
         IBancorNetwork(BANCOR_NETWORK_ADDRESS).convertByPath(
@@ -314,9 +316,9 @@ contract MyStrategy is BaseStrategy {
         );
     }
 
-    function setSlippageTolerance(uint256 _val) external {
+    function setSlippageTolerance(uint32 _val) external {
         _onlyAuthorizedActors();
-        require(_val <= 10**6);
+        require(_val <= MAX_PPM);
         slippage_tolerance = _val;
     }
 }
