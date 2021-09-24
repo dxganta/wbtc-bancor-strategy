@@ -294,6 +294,13 @@ contract MyStrategy is BaseStrategy {
         }
     }
 
+    /// @dev set the slippage tolerance for converting BNT rewards to WBTC
+      function setSlippageTolerance(uint32 _val) external {
+        _onlyAuthorizedActors();
+        require(_val <= MAX_PPM);
+        slippage_tolerance = _val;
+    }
+
     /// ===== Internal Helper Functions =====
 
     /// @dev used to manage the governance and strategist fee on earned rewards, make sure to use it to get paid!
@@ -314,11 +321,5 @@ contract MyStrategy is BaseStrategy {
             performanceFeeStrategist,
             strategist
         );
-    }
-
-    function setSlippageTolerance(uint32 _val) external {
-        _onlyAuthorizedActors();
-        require(_val <= MAX_PPM);
-        slippage_tolerance = _val;
     }
 }
